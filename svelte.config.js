@@ -27,6 +27,21 @@ const config = {
 				throw new Error(`${message} (${path} from ${referrer})`);
 			},
 		},
+		csp: {
+			directives: {
+				"default-src": ["'self'"],
+				"script-src": ["'self'", "'unsafe-inline'"],
+				"style-src": ["'self'", "'unsafe-inline'"],
+				"img-src": ["'self'", "data:", "https:"],
+				"font-src": ["'self'", "data:", "https:"],
+				"connect-src": ["'self'", "https:"],
+				"frame-ancestors": ["'none'"],
+				"form-action": ["'none'"],
+				"object-src": ["'none'"],
+				"base-uri": ["'none'"]
+			},
+			mode: "auto"
+		},
 		alias: {
 			$components: "src/lib/components",
 			$icons: "src/lib/icons",
