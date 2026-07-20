@@ -4,6 +4,10 @@
 	import { revealTitle, revealHint } from "$utils/reveal-presets";
 	import { prettify } from "$utils/text";
 	import { languageColor } from "$utils/format";
+	import { fetchApiJson } from "$lib/api/client";
+	import { buildSideProjects } from "$lib/api/merge-projects";
+	import { projects } from "$data/projects";
+	import type { GitHubRepo } from "$types/api/github";
 
 	interface SideProject {
 		id: string;
@@ -28,22 +32,35 @@
 
 	const DESKTOP_INITIAL = 9;
 	const MOBILE_INITIAL = 5;
+	const MAX_INLINE_REPOS = 24;
 	let isSingleColumn = $state(false);
 	let expanded = $state(false);
+	let refreshedProjects = $state<SideProject[] | null>(null);
 
-	const displayProjects: SideProject[] = $derived(sideProjects);
+	const displayProjects: SideProject[] = $derived(refreshedProjects ?? sideProjects);
+	const displayError = $derived(refreshedProjects === null ? error : null);
 	const initialVisible = $derived(isSingleColumn ? MOBILE_INITIAL : DESKTOP_INITIAL);
 	const initialWord = $derived(isSingleColumn ? "Five" : "Nine");
 
+	async function refreshProjects(signal: AbortSignal): Promise<void> {
+		try {
+			const { repos } = await fetchApiJson<{ repos: GitHubRepo[] }>("/api/github", { signal });
+			refreshedProjects = buildSideProjects(repos, projects).slice(0, MAX_INLINE_REPOS);
+		} catch {}
+	}
+
 	onMount(() => {
+		const abortController = new AbortController();
 		const mql = window.matchMedia("(max-width: 520px)");
 		isSingleColumn = mql.matches;
 		const onColChange = (): void => {
 			isSingleColumn = mql.matches;
 		};
 		mql.addEventListener("change", onColChange);
+		void refreshProjects(abortController.signal);
 
 		return () => {
+			abortController.abort();
 			mql.removeEventListener("change", onColChange);
 		};
 	});
@@ -75,8 +92,8 @@
 			</p>
 		</header>
 
-		{#if error}
-			<p class="empty">Couldn't load projects: {error}</p>
+		{#if displayError}
+			<p class="empty">Couldn't load projects</p>
 		{:else if displayProjects.length === 0}
 			<p class="empty">No projects to show yet.</p>
 		{:else}
