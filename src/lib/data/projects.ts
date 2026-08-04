@@ -24,6 +24,7 @@ export const projects: ProjectsConfig = {
 		"Steam-History-Custom-Info",
 		"mc-mod-packs",
 		"my-wallpaper-engine-workshop",
+		"apex-legends-config",
 	],
 	tagColors: {
 		Tooling: "#FF3D00",
