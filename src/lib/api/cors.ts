@@ -9,6 +9,7 @@ const LOCALHOST = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
 export function isAllowedOrigin(request: Request): boolean {
 	const origin = request.headers.get("origin");
 	if (origin) {
+		if (origin === new URL(request.url).origin) return true;
 		if ((ALLOWED_ORIGINS as readonly string[]).includes(origin)) return true;
 		if (VERCEL_PREVIEW.test(origin)) return true;
 		if (LOCALHOST.test(origin)) return true;
