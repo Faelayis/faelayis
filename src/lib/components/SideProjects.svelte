@@ -40,7 +40,6 @@
 	const displayProjects: SideProject[] = $derived(refreshedProjects ?? sideProjects);
 	const displayError = $derived(refreshedProjects === null ? error : null);
 	const initialVisible = $derived(isSingleColumn ? MOBILE_INITIAL : DESKTOP_INITIAL);
-	const initialWord = $derived(isSingleColumn ? "Five" : "Nine");
 
 	async function refreshProjects(signal: AbortSignal): Promise<void> {
 		try {
@@ -87,7 +86,7 @@
 				Side Projects<span class="badge-soft">(Public)</span>
 			</h2>
 			<p class="hint" use:revealOnView={revealHint}>
-				{initialWord} things I've built. The rest lives on
+				A selection of things I’ve built. Find the rest on
 				<a href="https://github.com/{githubUsername}" target="_blank" rel="noopener" class="ulink">GitHub</a>.
 			</p>
 		</header>
