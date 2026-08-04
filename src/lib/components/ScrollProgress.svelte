@@ -50,10 +50,7 @@
 		will-change: transform, opacity;
 		pointer-events: none;
 	}
-	:global([data-theme="dark"]) .head,
-	:global(:root:not([data-theme])) .head {
-		mix-blend-mode: screen;
-	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.head {
 			display: none;
