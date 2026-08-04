@@ -2,11 +2,11 @@ node_modules
 .svelte-kit
 build
 .vercel
+.wrangler
+.dev.vars*
 .env
 .env.*
 !.env.example
 dist
 .DS_Store
 *.log
-
-.vercel

@@ -1,38 +1,45 @@
 {
 	"name": "faelayis",
 	"version": "1.0.0",
-	"private": true,
 	"type": "module",
+	"packageManager": "bun@1.3.14",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
 		"build:static": "BUILD_TARGET=static vite build && bun run scripts/inline-css.ts build",
 		"build:vercel": "BUILD_TARGET=vercel vite build && bun run scripts/inline-css.ts .vercel/output/static",
+		"build:cloudflare": "BUILD_TARGET=cloudflare vite build && bun run scripts/inline-css.ts .svelte-kit/cloudflare",
 		"vercel-build": "bun run build:vercel",
 		"deploy:vercel": "bun run build:vercel && vercel deploy --yes",
 		"deploy:vercel:prod": "bun run build:vercel && vercel deploy --prod --yes",
+		"deploy:cloudflare": "bun run build:cloudflare && wrangler deploy --keep-vars",
+		"cf-typegen": "wrangler types",
 		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"check": "svelte-kit sync && svelte-check --tsgo --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsgo --tsconfig ./tsconfig.json --watch",
+		"typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit --project ./tsconfig.json",
 		"prettier": "prettier --write ."
 	},
 	"devDependencies": {
+		"@sveltejs/adapter-cloudflare": "7.2.9",
 		"@sveltejs/adapter-static": "3.0.10",
-		"@sveltejs/adapter-vercel": "6.3.3",
-		"@sveltejs/kit": "2.65.2",
-		"@sveltejs/vite-plugin-svelte": "7.1.2",
-		"@types/node": "25.9.3",
-		"prettier": "3.8.4",
+		"@sveltejs/adapter-vercel": "6.3.4",
+		"@sveltejs/kit": "2.70.2",
+		"@sveltejs/vite-plugin-svelte": "7.2.0",
+		"@types/node": "26.1.2",
+		"@typescript/native": "npm:typescript@7",
+		"prettier": "3.9.6",
 		"prettier-plugin-svelte": "4.1.1",
-		"svelte": "5.56.3",
-		"svelte-check": "4.6.0",
-		"typescript": "6.0.3",
-		"vite": "8.0.16"
+		"svelte": "5.56.8",
+		"svelte-check": "4.7.4",
+		"typescript": "6",
+		"vite": "8.2.0",
+		"wrangler": "4.118.0"
 	},
 	"dependencies": {
-		"@octokit/graphql": "9.0.3",
+		"@octokit/graphql": "9.0.4",
 		"@vercel/analytics": "2.0.1",
-		"animejs": "4.4.1",
-		"simple-icons": "16.23.0"
+		"animejs": "4.5.0",
+		"simple-icons": "16.28.0"
 	}
 }

@@ -1,23 +1,33 @@
-import adapter from "@sveltejs/adapter-static";
+import adapterCloudflare from "@sveltejs/adapter-cloudflare";
+import adapterStatic from "@sveltejs/adapter-static";
 import adapterVercel from "@sveltejs/adapter-vercel";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 const buildTarget = process.env.BUILD_TARGET ?? "";
+const supportedBuildTargets = new Set(["", "static", "vercel", "cloudflare"]);
+
+if (!supportedBuildTargets.has(buildTarget)) {
+	throw new Error(`Unsupported BUILD_TARGET: ${buildTarget}`);
+}
+
+const selectedAdapter =
+	buildTarget === "vercel"
+		? adapterVercel()
+		: buildTarget === "cloudflare"
+			? adapterCloudflare()
+			: adapterStatic({
+					pages: "build",
+					assets: "build",
+					fallback: "404.html",
+					precompress: false,
+					strict: false,
+				});
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter:
-			buildTarget === "vercel"
-				? adapterVercel()
-				: adapter({
-						pages: "build",
-						assets: "build",
-						fallback: "404.html",
-						precompress: false,
-						strict: false,
-					}),
+		adapter: selectedAdapter,
 		// paths: {
 		// 	base: buildTarget === "static" ? "/me" : "",
 		// },
