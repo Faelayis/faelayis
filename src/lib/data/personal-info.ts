@@ -4,10 +4,10 @@ import type { PersonalInfo } from "$types/data/personal-info";
 export const personalInfo: PersonalInfo = {
 	name: "Fae",
 	handle: "Faelayis",
-	role: "Full Stack Developer",
+	role: "Developer",
 	location: "Chiang Mai, Thailand",
 	email: "faelayis@proton.com",
-	bio: "Full-Stack Developer passionate about building modern web applications, scalable systems, and user-friendly digital experiences. Always learning, always improving.",
+	bio: "",
 	longBio: "",
 	socials: [
 		{ label: "GitHub", url: "https://github.com/faelayis", icon: siGithub },
