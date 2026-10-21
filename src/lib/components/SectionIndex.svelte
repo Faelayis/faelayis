@@ -11,8 +11,8 @@
 	const FALLBACK_LABELS: Record<string, string> = {
 		top: "Intro",
 		"part-of-work": "Work",
-		"side-projects": "Side Project",
-		"tech-skills": "Skill",
+		"side-projects": "Projects",
+		"tech-skills": "Skills",
 		about: "About",
 		contact: "Contact",
 	};
@@ -146,9 +146,27 @@
 		transform: scale(1.6);
 		box-shadow: 0 0 0 4px color-mix(in oklch, var(--accent) 18%, transparent);
 	}
-	a:hover .lbl {
+	a:hover .lbl,
+	a:focus-visible .lbl {
 		max-width: 8rem;
 		opacity: 1;
+	}
+	/* Narrower screens: the column sits close to the index, so the active label stays
+	   collapsed and only opens on hover or focus, over a paper backing. */
+	@media (max-width: 1180px) {
+		a.active .lbl {
+			max-width: 0;
+			opacity: 0;
+		}
+		a:hover .lbl,
+		a:focus-visible .lbl {
+			max-width: 8rem;
+			opacity: 1;
+		}
+		.lbl {
+			background: var(--bg);
+			box-shadow: 0 0 0 4px var(--bg);
+		}
 	}
 	@media (max-width: 720px) {
 		.index {

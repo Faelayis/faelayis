@@ -2,7 +2,7 @@
 	const year = new Date().getFullYear();
 </script>
 
-<div class="year-badge mono" aria-label="Year {year}">
+<div class="year-badge mono" aria-hidden="true">
 	<span>{year}</span>
 </div>
 
@@ -18,5 +18,10 @@
 		color: var(--ink-muted);
 		pointer-events: none;
 		user-select: none;
+	}
+	@media (max-width: 720px) {
+		.year-badge {
+			display: none;
+		}
 	}
 </style>

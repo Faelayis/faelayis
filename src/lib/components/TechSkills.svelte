@@ -5,6 +5,7 @@
 	import { TOOLS } from "$data/tech/tools";
 	import { LANGUAGES } from "$data/tech/languages";
 	import { slugify } from "$utils/text";
+	import { isInkHex } from "$utils/format";
 	import type { RenderedTechItem, ResolvedIcon } from "$types/icons";
 	import type { TechItem } from "$types/data/tech/types";
 
@@ -46,7 +47,15 @@
 						{#each languageSkills as languageSkill, index (languageSkill.slug)}
 							{#if languageSkill.icon}
 								<li class="item" style="--i: {index}">
-									<svg class="item-icon" viewBox="0 0 24 24" width="16" height="16" fill="#{languageSkill.icon.hex}" aria-hidden="true">
+									<svg
+										class="item-icon"
+										class:is-ink-icon={isInkHex(languageSkill.icon.hex)}
+										viewBox="0 0 24 24"
+										width="16"
+										height="16"
+										fill="#{languageSkill.icon.hex}"
+										aria-hidden="true"
+									>
 										<path d={languageSkill.icon.path} />
 									</svg>
 									<span class="item-name">{languageSkill.name}</span>
@@ -67,7 +76,15 @@
 					{#each frameworkSkills as frameworkSkill, index (frameworkSkill.slug)}
 						{#if frameworkSkill.icon}
 							<li class="item" style="--i: {index}">
-								<svg class="item-icon" viewBox="0 0 24 24" width="16" height="16" fill="#{frameworkSkill.icon.hex}" aria-hidden="true">
+								<svg
+									class="item-icon"
+									class:is-ink-icon={isInkHex(frameworkSkill.icon.hex)}
+									viewBox="0 0 24 24"
+									width="16"
+									height="16"
+									fill="#{frameworkSkill.icon.hex}"
+									aria-hidden="true"
+								>
 									<path d={frameworkSkill.icon.path} />
 								</svg>
 								<span class="item-name">{frameworkSkill.name}</span>
@@ -87,7 +104,15 @@
 					{#each toolSkills as toolSkill, index (toolSkill.slug)}
 						{#if toolSkill.icon}
 							<li class="item" style="--i: {index}">
-								<svg class="item-icon" viewBox="0 0 24 24" width="16" height="16" fill="#{toolSkill.icon.hex}" aria-hidden="true">
+								<svg
+									class="item-icon"
+									class:is-ink-icon={isInkHex(toolSkill.icon.hex)}
+									viewBox="0 0 24 24"
+									width="16"
+									height="16"
+									fill="#{toolSkill.icon.hex}"
+									aria-hidden="true"
+								>
 									<path d={toolSkill.icon.path} />
 								</svg>
 								<span class="item-name">{toolSkill.name}</span>
@@ -173,8 +198,12 @@
 			border-color var(--duration-fast) var(--easing-soft),
 			background var(--duration-fast) var(--easing-soft),
 			transform var(--duration-fast) var(--easing-out);
-		opacity: 0;
-		transform: translateY(-14px);
+	}
+	@media (scripting: enabled) {
+		.item {
+			opacity: 0;
+			transform: translateY(-14px);
+		}
 	}
 	.item-bare {
 		padding-left: 0.9rem;
@@ -186,7 +215,7 @@
 		transform: translateY(-1px);
 	}
 	.categories:global(.in) .item {
-		animation: item-in 560ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+		animation: item-in 560ms var(--easing-out) forwards;
 		animation-delay: calc(var(--i) * 30ms);
 	}
 	@keyframes item-in {

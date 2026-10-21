@@ -35,7 +35,6 @@ export function scrambleText(node: HTMLElement, options: ScrambleOptions = {}): 
 	const fromText = Array.from(new Set(text.filter((c) => c.trim() !== ""))).join("");
 	const scramblePool = chars || fromText || DEFAULT_SCRAMBLE_CHARS;
 
-	node.setAttribute("aria-label", original);
 	node.classList.add("scramble");
 
 	const charClassName = charClass ? `scramble-ch ${charClass}` : "scramble-ch";
@@ -47,6 +46,7 @@ export function scrambleText(node: HTMLElement, options: ScrambleOptions = {}): 
 	for (const ch of text) {
 		const span = document.createElement("span");
 		span.className = charClassName;
+		span.setAttribute("aria-hidden", "true");
 		if (ch === " ") {
 			span.textContent = " ";
 			scramblable.push(false);
@@ -60,6 +60,11 @@ export function scrambleText(node: HTMLElement, options: ScrambleOptions = {}): 
 		frag.appendChild(span);
 		spans.push(span);
 	}
+
+	const label = document.createElement("span");
+	label.className = "sr-only";
+	label.textContent = original;
+	frag.appendChild(label);
 
 	node.textContent = "";
 	node.appendChild(frag);

@@ -9,6 +9,7 @@
 	--line-strong: oklch(14% 0.01 270 / 22%);
 	--accent: oklch(64% 0.24 28);
 	--accent-ink: oklch(98% 0.005 90);
+	--shadow: oklch(14% 0.01 270 / 60%);
 
 	--gap-2xs: 0.5rem;
 	--gap-xs: 0.75rem;
@@ -34,8 +35,54 @@
 	--gutter: clamp(1.25rem, 3.5vw, 2.5rem);
 	--col-max: 52rem;
 	--easing-soft: cubic-bezier(0.4, 0, 0.2, 1);
+	--easing-out: cubic-bezier(0.22, 1, 0.36, 1);
 	--duration-fast: 160ms;
 	--duration-base: 240ms;
+}
+
+:root {
+	color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		color-scheme: dark;
+		--bg: oklch(20% 0 0);
+		--bg-elev: oklch(24.5% 0 0);
+		--ink: oklch(94% 0 0);
+		--ink-2: oklch(83% 0 0);
+		--ink-muted: oklch(68% 0 0);
+		--ink-faint: oklch(45% 0 0);
+		--line: oklch(94% 0 0 / 10%);
+		--line-strong: oklch(94% 0 0 / 22%);
+		--accent: oklch(70% 0.2 32);
+		--accent-ink: oklch(20% 0 0);
+		--shadow: oklch(0% 0 0 / 70%);
+	}
+}
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--bg: oklch(20% 0 0);
+	--bg-elev: oklch(24.5% 0 0);
+	--ink: oklch(94% 0 0);
+	--ink-2: oklch(83% 0 0);
+	--ink-muted: oklch(68% 0 0);
+	--ink-faint: oklch(45% 0 0);
+	--line: oklch(94% 0 0 / 10%);
+	--line-strong: oklch(94% 0 0 / 22%);
+	--accent: oklch(70% 0.2 32);
+	--accent-ink: oklch(20% 0 0);
+	--shadow: oklch(0% 0 0 / 70%);
+}
+
+/* Brand marks that are near-black (GitHub, X, Next.js, Rust…) switch to ink in dark mode. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) .is-ink-icon {
+		fill: currentColor;
+	}
+}
+:root[data-theme="dark"] .is-ink-icon {
+	fill: currentColor;
 }
 
 *,
@@ -157,6 +204,27 @@ select {
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
 	}
+}
+
+.skip-link {
+	position: fixed;
+	top: 0.75rem;
+	left: 0.75rem;
+	z-index: 100;
+	padding: 0.7rem 1rem;
+	background: var(--ink);
+	color: var(--bg);
+	font-size: 0.9rem;
+	border-radius: 8px;
+	transform: translateY(-160%);
+	transition: transform var(--duration-base) var(--easing-soft);
+}
+.skip-link:focus-visible {
+	transform: translateY(0);
+}
+
+main:focus {
+	outline: none;
 }
 
 .sr-only {

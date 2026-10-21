@@ -36,10 +36,16 @@
 		color: var(--ink-muted);
 	}
 	.top {
+		position: relative;
 		font-family: var(--font-mono);
 		font-size: 0.78rem;
 		color: var(--ink-muted);
 		transition: color var(--duration-fast) var(--easing-soft);
+	}
+	.top::before {
+		content: "";
+		position: absolute;
+		inset: -12px -8px;
 	}
 	.top:hover {
 		color: var(--ink);

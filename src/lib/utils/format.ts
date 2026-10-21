@@ -21,6 +21,28 @@ export function timeAgo(iso: string): string {
 	return `${Math.floor(diff / (86400 * 365))}y ago`;
 }
 
+const DAY_MS = 86_400_000;
+
+export function recencyLabel(iso: string, now: number | null): string {
+	const date = new Date(iso);
+	const monthYear = date.toLocaleDateString("en-US", { year: "numeric", month: "short" });
+	if (now === null) return monthYear;
+	const days = Math.floor((now - date.getTime()) / DAY_MS);
+	if (days < 1) return "today";
+	if (days === 1) return "yesterday";
+	if (days < 14) return `${days} days ago`;
+	if (days < 60) return `${Math.floor(days / 7)} wk ago`;
+	if (days < 330) return `${Math.floor(days / 30)} mo ago`;
+	return monthYear;
+}
+
+export function isInkHex(hex: string): boolean {
+	const value = hex.replace("#", "");
+	if (value.length !== 6) return false;
+	const [r, g, b] = [0, 2, 4].map((offset) => parseInt(value.slice(offset, offset + 2), 16) / 255);
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.18;
+}
+
 export function languageColor(language: string): string {
 	const map: Record<string, string> = {
 		TypeScript: "#3178c6",

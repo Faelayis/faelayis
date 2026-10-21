@@ -1,9 +1,26 @@
-import { animate, stagger } from "animejs";
+import { animate, stagger, utils } from "animejs";
 import type { RevealAction, RevealCharsOptions, RevealParams } from "$types/utils/anime";
 import { replay, nearestSectionId } from "$utils/replay";
 
 function prefersReduceMotion(): boolean {
 	return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+const TIMING_KEYS = new Set(["duration", "delay", "ease", "autoplay", "loop", "alternate", "reversed", "playbackRate", "frameRate"]);
+
+function endValue(value: unknown): unknown {
+	if (Array.isArray(value)) return endValue(value[value.length - 1]);
+	if (value && typeof value === "object" && "to" in value) return endValue((value as { to: unknown }).to);
+	return value;
+}
+
+function settle(targets: HTMLElement | HTMLElement[], animation: Record<string, unknown>): void {
+	const finalState: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(animation)) {
+		if (TIMING_KEYS.has(key) || key.startsWith("on") || typeof value === "function") continue;
+		finalState[key] = endValue(value);
+	}
+	utils.set(targets, finalState as Parameters<typeof utils.set>[1]);
 }
 
 const DEFAULT_OBSERVER_OPTIONS: IntersectionObserverInit = {
@@ -19,7 +36,12 @@ export function revealOnView(node: HTMLElement, params: RevealParams = {}): Reve
 		...(rootMargin ? { rootMargin } : {}),
 	};
 
-	if (typeof IntersectionObserver === "undefined" || prefersReduceMotion()) {
+	if (prefersReduceMotion()) {
+		settle(node, animation);
+		return { destroy: () => {} };
+	}
+
+	if (typeof IntersectionObserver === "undefined") {
 		animate(node, { ...animation });
 		return { destroy: () => {} };
 	}
@@ -69,7 +91,12 @@ export function revealChars(node: HTMLElement, options: RevealCharsOptions = {})
 	const charNodes = Array.from(node.querySelectorAll<HTMLElement>(selector));
 	if (charNodes.length === 0) return { destroy: () => {} };
 
-	if (typeof IntersectionObserver === "undefined" || prefersReduceMotion()) {
+	if (prefersReduceMotion()) {
+		settle(charNodes, finalAnimation);
+		return { destroy: () => {} };
+	}
+
+	if (typeof IntersectionObserver === "undefined") {
 		animate(charNodes, { ...finalAnimation, delay: stagger(staggerMs) });
 		return { destroy: () => {} };
 	}

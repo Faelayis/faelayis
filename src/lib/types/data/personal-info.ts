@@ -3,6 +3,7 @@ import type { SimpleIcon } from "simple-icons";
 export interface Social {
 	label: string;
 	url: string;
+	handle?: string;
 	icon?: SimpleIcon;
 }
 

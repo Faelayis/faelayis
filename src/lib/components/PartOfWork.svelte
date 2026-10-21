@@ -11,6 +11,7 @@
 
 	const isActive = (item: PartOfWorkItem) => item.end.trim().toLowerCase() === "present";
 	const startYear = (item: PartOfWorkItem) => item.start.trim();
+	const opensYear = (index: number) => index === 0 || startYear(partOfWork[index - 1]) !== startYear(partOfWork[index]);
 
 	function tiltEntry(node: HTMLElement): { destroy: () => void } {
 		if (typeof window === "undefined") return { destroy: () => {} };
@@ -93,24 +94,26 @@
 		</header>
 
 		{#if partOfWork?.length}
-			<ol class="entry-list">
+			<ol class="timeline" use:inView>
 				{#each partOfWork as item, index (item.name)}
 					{@const active = isActive(item)}
 					<li
 						class="entry"
 						class:is-active={active}
-						aria-current={active ? "true" : undefined}
+						style="--i: {index}"
 						use:revealOnView={{
 							opacity: [0, 1],
-							filter: ["blur(14px)", "blur(0px)"],
-							scale: [1.06, 1],
-							duration: 760,
-							delay: index * 70,
+							translateY: [16, 0],
+							duration: 720,
+							delay: 120 + index * 90,
 							ease: "out(3)",
 						}}
 						use:tiltEntry
 					>
-						{#snippet mark()}
+						<span class="entry-year mono" aria-hidden="true">{opensYear(index) ? startYear(item) : ""}</span>
+						<span class="entry-rail" aria-hidden="true"><span class="node"></span></span>
+
+						{#snippet card()}
 							<div class="entry-mark" aria-hidden="true">
 								{#if item.logoUrl}
 									<img src={item.logoUrl} alt="" loading="lazy" decoding="async" />
@@ -120,18 +123,13 @@
 									{item.name.charAt(0)}
 								{/if}
 							</div>
-						{/snippet}
-						{#snippet meta()}
-							<div class="entry-meta">
-								<span class="num mono">0{partOfWork.length - index}</span>
-								<span class="status" class:active>
-									<span class="pulse"></span>
-									{active ? "Active" : "Past"}
-								</span>
-							</div>
-						{/snippet}
-						{#snippet body()}
 							<div class="entry-body">
+								<p class="period mono">
+									<time datetime={startYear(item)}>{startYear(item)}</time>
+									<span class="dash" aria-hidden="true">—</span>
+									<span class="sr-only">to</span>
+									{item.end}
+								</p>
 								<h3 class="entry-name">
 									{item.name}
 									{#if item.role}<span class="role">— {item.role}</span>{/if}
@@ -147,36 +145,16 @@
 									</ul>
 								{/if}
 							</div>
-						{/snippet}
-						{#snippet aside()}
-							<div class="entry-aside">
-								<time class="period mono" datetime={startYear(item)}>
-									{startYear(item)} <span class="dash">—</span>
-									{item.end}
-								</time>
-								<span class="arrow" aria-hidden="true">↗</span>
-							</div>
+							<span class="arrow" aria-hidden="true">↗</span>
 						{/snippet}
 
 						{#if item.url}
-							<a class="entry-link" href={item.url} target="_blank" rel="noopener noreferrer" data-cursor="View">
-								<span class="sr-only">Visit {item.name} (opens in new tab)</span>
-								<div class="cell-mark">{@render mark()}</div>
-								<div class="cell-main">
-									{@render meta()}
-									{@render body()}
-								</div>
-								<div class="cell-aside">{@render aside()}</div>
+							<a class="entry-card" href={item.url} target="_blank" rel="noopener noreferrer" data-cursor="View">
+								<span class="sr-only">Visit {item.name}{active ? ", current" : ""} (opens in new tab)</span>
+								{@render card()}
 							</a>
 						{:else}
-							<div class="entry-link is-static">
-								<div class="cell-mark">{@render mark()}</div>
-								<div class="cell-main">
-									{@render meta()}
-									{@render body()}
-								</div>
-								<div class="cell-aside">{@render aside()}</div>
-							</div>
+							<div class="entry-card is-static">{@render card()}</div>
 						{/if}
 					</li>
 				{/each}
@@ -215,38 +193,104 @@
 		color: var(--ink-muted);
 	}
 
-	.entry-list {
-		display: flex;
-		flex-direction: column;
+	/* Timeline: year | rail | card. The rail is one hairline drawn through every entry,
+	   with a node per entry; current work carries the vermilion signal. */
+	.timeline {
+		--node-top: 1.7rem;
+		padding-top: 0.5rem;
 	}
 	.entry {
-		border-bottom: 1px solid var(--line);
 		position: relative;
-	}
-	.entry:first-child {
-		border-top: 1px solid var(--line);
+		display: grid;
+		grid-template-columns: 3.25rem 1.5rem 1fr;
+		column-gap: clamp(0.5rem, 1.5vw, 1rem);
 	}
 
-	.entry-link {
+	.entry-year {
+		padding-top: calc(var(--node-top) - 0.6em);
+		font-size: 0.78rem;
+		letter-spacing: 0.06em;
+		text-align: right;
+		color: var(--ink-muted);
+	}
+	.entry.is-active .entry-year {
+		color: var(--ink);
+	}
+
+	.entry-rail {
+		position: relative;
+	}
+	.entry-rail::before {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 0;
+		bottom: 0;
+		width: 1px;
+		background: var(--line-strong);
+		transform-origin: top center;
+	}
+	.entry:first-child .entry-rail::before {
+		top: var(--node-top);
+	}
+	.entry:last-child .entry-rail::before {
+		bottom: calc(100% - var(--node-top));
+	}
+	.node {
+		position: absolute;
+		left: 50%;
+		top: var(--node-top);
+		width: 9px;
+		height: 9px;
+		border-radius: 50%;
+		border: 1.5px solid var(--ink-faint);
+		background: var(--bg);
+		translate: -50% -50%;
+		transition:
+			border-color var(--duration-base) var(--easing-soft),
+			transform 320ms var(--easing-soft);
+	}
+	.entry.is-active .node {
+		border-color: var(--accent);
+		background: var(--accent);
+		box-shadow: 0 0 0 4px color-mix(in oklch, var(--accent) 18%, transparent);
+	}
+	.entry:hover .node {
+		border-color: var(--ink);
+		transform: scale(1.25);
+	}
+	.entry.is-active:hover .node {
+		border-color: var(--accent);
+	}
+	/* The rail draws itself down the list once it scrolls in (only when scripts run). */
+	@media (scripting: enabled) {
+		.entry-rail::before {
+			transform: scaleY(0);
+			transition: transform 700ms var(--easing-out);
+			transition-delay: calc(80ms + var(--i) * 90ms);
+		}
+		.timeline:global(.in) .entry-rail::before {
+			transform: scaleY(1);
+		}
+	}
+
+	.entry-card {
 		display: grid;
 		grid-template-columns: auto 1fr auto;
-		column-gap: clamp(1rem, 3vw, 2rem);
-		row-gap: 1rem;
+		column-gap: clamp(0.9rem, 2.5vw, 1.5rem);
 		align-items: start;
-		padding: clamp(1.2rem, 1rem + 0.8vw, 1.6rem) clamp(0.25rem, 0.5vw, 0.5rem);
+		margin-block: 0.25rem;
+		padding: 0.9rem clamp(0.6rem, 1.5vw, 1rem);
+		border-radius: 12px;
 		transition: background 320ms var(--easing-soft);
 	}
-	a.entry-link:hover {
+	a.entry-card:hover {
 		background: var(--bg-elev);
 	}
-	.entry-link.is-static {
+	.entry-card.is-static {
 		cursor: default;
 	}
 
-	.cell-mark {
-		grid-row: span 2;
-		padding-top: 0.15rem;
-	}
 	.entry-mark {
 		width: 44px;
 		height: 44px;
@@ -266,68 +310,36 @@
 			transform 320ms var(--easing-soft);
 	}
 	.entry-mark img {
-		border-radius: 10px;
-	}
-	.entry-mark img {
 		width: 100%;
 		height: 100%;
 		object-fit: contain;
 		display: block;
+		border-radius: 10px;
 	}
-	.entry.is-active .entry-mark {
-		color: var(--ink);
-	}
-	a.entry-link:hover .entry-mark {
+	a.entry-card:hover .entry-mark {
 		border-color: var(--ink-faint);
 	}
 
-	.cell-main {
+	.entry-body {
 		display: flex;
 		flex-direction: column;
-		gap: 0.6rem;
+		gap: 0.45rem;
 		min-width: 0;
 	}
-	.cell-aside {
-		grid-row: span 2;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		justify-content: space-between;
-		gap: 1rem;
-		text-align: right;
-	}
-
-	.entry-meta {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.6rem;
-	}
-	.num {
-		font-size: 0.7rem;
-		letter-spacing: 0.16em;
-		color: var(--ink-muted);
-	}
-	.status {
+	.period {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.4rem;
-		font: 500 0.66rem/1 var(--font-mono);
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
+		font-size: 0.72rem;
+		letter-spacing: 0.02em;
 		color: var(--ink-muted);
-		padding: 4px 9px;
-		border: 1px solid var(--line);
-		border-radius: 999px;
+		white-space: nowrap;
 	}
-	.status.active {
+	.period .dash {
+		opacity: 0.5;
+	}
+	.entry.is-active .period {
 		color: var(--ink-2);
-		border-color: var(--ink-faint);
-	}
-	.pulse {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: currentColor;
 	}
 
 	.entry-name {
@@ -337,9 +349,6 @@
 		letter-spacing: var(--ls-tight);
 		line-height: 1.1;
 		transition: transform 320ms var(--easing-soft);
-	}
-	.entry.is-active .entry-name {
-		color: var(--ink);
 	}
 	.role {
 		font-family: var(--font-body);
@@ -367,28 +376,15 @@
 		border: 1px solid var(--line);
 		border-radius: 999px;
 		color: var(--ink-muted);
-		background: color-mix(in oklch, var(--bg) 70%, transparent);
 		transition:
 			color var(--duration-fast) var(--easing-soft),
 			border-color var(--duration-fast) var(--easing-soft);
 	}
-	a.entry-link:hover .tag {
+	a.entry-card:hover .tag {
 		color: var(--ink-2);
 		border-color: var(--ink-faint);
 	}
 
-	.period {
-		font-size: 0.72rem;
-		color: var(--ink-muted);
-		white-space: nowrap;
-		letter-spacing: 0.02em;
-		display: inline-flex;
-		align-items: center;
-		min-height: calc(0.66rem + 10px);
-	}
-	.period .dash {
-		opacity: 0.5;
-	}
 	.arrow {
 		font-size: 1.05rem;
 		color: var(--ink-2);
@@ -397,36 +393,27 @@
 		transition:
 			opacity 280ms var(--easing-soft),
 			translate 280ms var(--easing-soft),
-			transform 280ms var(--easing-soft),
-			color 280ms var(--easing-soft);
+			transform 280ms var(--easing-soft);
 	}
-	a.entry-link:hover .arrow {
+	a.entry-card:hover .arrow {
 		opacity: 1;
 		translate: 0 0;
-		color: var(--ink-2);
-	}
-	.entry.is-active .arrow {
-		color: var(--ink-2);
 	}
 
+	/* Phones: the year column folds away (each card already shows its period). */
 	@media (max-width: 620px) {
-		.cell-mark {
-			grid-column: 1;
-			grid-row: 1;
+		.entry {
+			grid-template-columns: 1rem 1fr;
+			column-gap: 0.6rem;
 		}
-		.cell-main {
-			grid-column: 2;
-			grid-row: 1;
+		.entry-year {
+			display: none;
 		}
-		.cell-aside {
-			grid-column: 3;
-			grid-row: 1;
-			flex-direction: column;
-			align-items: flex-end;
-			justify-content: flex-start;
-			text-align: right;
+		.entry-card {
+			grid-template-columns: auto 1fr;
+			padding-inline: 0.5rem;
 		}
-		.cell-aside .arrow {
+		.arrow {
 			display: none;
 		}
 	}

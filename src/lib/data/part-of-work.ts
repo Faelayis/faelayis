@@ -24,7 +24,7 @@ export const partOfWork: PartOfWorkItem[] = [
 	},
 	{
 		name: "Premid",
-		logo: "H",
+		logo: "P",
 		logoUrl: "https://avatars.githubusercontent.com/u/46326568?s=48&v=4",
 		role: "Contributor",
 		description: "Activities for premid to display live website statuses on discord rich presence",
